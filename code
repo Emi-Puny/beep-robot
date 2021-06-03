@@ -1,0 +1,106 @@
+from locorobo import LocoRobo
+from locorobo import MotorDirection
+from locorobo import Data
+from locorobo import WaitType
+from locorobo import Song
+from locorobo import Note
+
+def get_robot(robots, name):
+    robot = None
+
+    # Search through robots found during the scan for
+    # the one we want
+    for r in robots.values():
+        if r.name == name:
+            robot = r
+
+            # We found the robot, so stop the for loop
+            break
+
+    # If we did not find the robot during the scan, stop the program
+    if not robot:
+        raise Exception('Could not find robot with specified name')
+
+    return robot
+
+
+def main():
+    # Tell LocoRobo what serial port to use
+    LocoRobo.setup("/dev/tty.usbmodem1")
+    
+    # Scan for robots
+    robots = LocoRobo.scan(2000)
+
+    # Use get_robots to find robot with name lr 00:07 in the scan result
+    robot = get_robot(robots, "WallE")
+
+    robot.connect()
+    robot.activate_motors()
+    robot.enable_sensor(Data.ULTRASONIC, True)
+    distance = robot.get_sensor_value(Data.ULTRASONIC)
+    
+#robot movement
+   
+    while True:
+        robot.enable_sensor(Data.ULTRASONIC, True)
+        distance = robot.get_sensor_value(Data.ULTRASONIC)
+        print(distance)
+        robot.setup_wait(WaitType.TIME,100)
+        robot.move(MotorDirection.FORWARD, MotorDirection.FORWARD, 1.000000, 1.000000, True)
+
+
+  
+        if distance < 5:
+            robot.move(MotorDirection.BACKWARD, MotorDirection.BACKWARD, 1, 1)
+            robot.setup_wait(WaitType.TIME, 500)
+            robot.move(MotorDirection.BACKWARD, MotorDirection.BACKWARD, 1.000000, 1.000000, True)
+            
+            robot.set_light(0, 255, 0, 0)
+            robot.set_light(1, 255, 0, 0)
+            robot.set_light(2, 255, 0, 0)
+            robot.set_light(3, 255, 0, 0)
+            robot.set_light(4, 255, 0, 0)
+            robot.set_light(5, 255, 0, 0)
+            robot.set_light(6, 255, 0, 0)
+            robot.set_light(7, 255, 0, 0)
+            robot.sync_lights()
+            robot.play_note(Note.A, 100, False)
+            robot.setup_wait(WaitType.SONG)
+            robot.play_note(Note.A, 100, True)
+            robot.play_note(Note.A, 100, False)
+            robot.setup_wait(WaitType.SONG)
+            robot.play_note(Note.A, 100, True)
+            robot.play_note(Note.A, 100, False)
+            robot.setup_wait(WaitType.SONG)
+            robot.play_note(Note.A, 100, True)
+            robot.play_note(Note.A, 100, False)
+            robot.setup_wait(WaitType.SONG)
+            robot.play_note(Note.A, 100, True)
+            robot.play_note(Note.A, 100, False)
+            robot.setup_wait(WaitType.SONG)
+            robot.play_note(Note.A, 100, True)
+            robot.play_note(Note.A, 100, False)
+            robot.setup_wait(WaitType.SONG)
+            robot.play_note(Note.A, 100, True)
+   
+    robot.deactivate_motors()
+    robot.disconnect()
+
+# If we are on the main thread, run the program
+if __name__ == "__main__":
+
+    try:
+        main()
+    except:
+        LocoRobo.stop()
+        raise
+
+    LocoRobo.stop()
+
+    # For compatibility with webapp's python, we can't use finally.
+    # If you are using local python, you can do the following
+    #
+    # try:
+    #     main()
+    # finally:
+    #     LocoRobo.stop()
